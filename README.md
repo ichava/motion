@@ -1,7 +1,7 @@
 # @ichava/motion
 
 A **framework-agnostic**, JSON-driven **SVG / icon animation engine**. Vanilla, **zero runtime
-dependencies**, self-contained (JS + CSS). Works in any project — React, Vue, plain HTML — via a
+dependencies**, self-contained (JS + CSS). Works in any project (React, Vue, plain HTML) via a
 `<script>` + `<link>`, or npm. Played through the **Web Animations API** with a **CSS-only** fallback.
 **~205 presets** (families × variants), `data-*` auto-init, custom keyframes/easings, and an **opt-in
 Lottie** tier.
@@ -27,14 +27,14 @@ import '@ichava/motion/css';
 
 ## Three ways to animate
 
-**1 · CSS-only (no JS)** — add a class; the base families ship as `@keyframes`:
+**1 · CSS-only (no JS)**: add a class; the base families ship as `@keyframes`:
 
 ```html
 <svg class="ichm-spin">…</svg>   <!-- or .ichm-pulse .ichm-bounce .ichm-heartbeat … -->
 ```
 Tune with CSS vars: `--ichm-duration`, `--ichm-easing`, `--ichm-iterations` (globally or per element).
 
-**2 · Declarative JS** — `data-*` on the element; `IchavaMotion.auto()` runs on load:
+**2 · Declarative JS**: `data-*` on the element; `IchavaMotion.auto()` runs on load:
 
 ```html
 <svg data-ichava-motion="spin-bold"
@@ -59,7 +59,7 @@ IchavaMotion.animate(el, { keyframes: [{transform:'rotate(0)'},{transform:'rotat
 ## Presets
 
 ~40 families × 6 variants (`default`, `· Reverse`, `· Subtle`, `· Subtle · Reverse`, `· Bold`,
-`· Bold · Reverse`) = **240** — Spin/Spin Y/Z, Flip X/Y, Roll, Orbit, Pulse, Heartbeat, Breathe, Zoom
+`· Bold · Reverse`) = **240**. Spin/Spin Y/Z, Flip X/Y, Roll, Orbit, Pulse, Heartbeat, Breathe, Zoom
 In/Out, Pop, Rubber Band, Jello, Tada, Bounce, Float, Hop, Slide ×4, Shake X/Y, Vibrate, Wobble, Wiggle,
 Swing, Pendulum, Rock, Fade, Blink, Flash, Glow, Draw, plus the illustration families below.
 `IchavaMotion.presetIds()` lists them; `dist/presets.json` is a shareable manifest
@@ -70,9 +70,9 @@ Swing, Pendulum, Rock, Fade, Blink, Flash, Glow, Draw, plus the illustration fam
 For multi-layer SVGs (spot illustrations), these families animate the SVG's **child layers** with a
 per-child stagger instead of moving the whole element:
 
-- **Reveal / Cascade / Assemble** — each layer fades/rises/scales/slides in, staggered.
-- **Parallax** — layers drift at a phase offset for depth.
-- **Draw** — measures each child `path` (`getTotalLength()`) and animates its `stroke-dashoffset` to 0.
+- **Reveal / Cascade / Assemble**: each layer fades/rises/scales/slides in, staggered.
+- **Parallax**: layers drift at a phase offset for depth.
+- **Draw**: measures each child `path` (`getTotalLength()`) and animates its `stroke-dashoffset` to 0.
 
 Mark the layers with `data-layer` (or use direct `<g>`/`<path>` children):
 
@@ -99,18 +99,27 @@ IchavaMotion.registerFamily({ id: 'twirl', label: 'Twirl', base: 1000, kf: (a) =
 ```
 Custom `cubic-bezier(...)` / `steps(...)` easings are accepted verbatim.
 
-## Lottie (tiered, opt-in — core stays light)
+## Lottie (tiered and opt-in, so the core stays light)
 
-- `config({ lottie: 'off' })` — **default**; ignores bodymovin JSON. Core payload only.
-- `config({ lottie: 'import' })` + `<script src="dist/ichava-motion-lottie.js">` — maps **simple**
+- `config({ lottie: 'off' })`: **default**; ignores bodymovin JSON. Core payload only.
+- `config({ lottie: 'import' })` + `<script src="dist/ichava-motion-lottie.js">`: maps **simple**
   single-layer bodymovin (transform/opacity keyframes) → our schema, played via WAAPI. No shapes/masks.
-- `config({ lottie: 'full' })` — for arbitrary bodymovin, **lazy-loads `lottie-web`** on demand (fetched
+- `config({ lottie: 'full' })`: for arbitrary bodymovin, **lazy-loads `lottie-web`** on demand (fetched
   only when a complex file is passed; not in the core bundle).
+
+## <a name="documentation"></a>Documentation
+
+- [Installation](docs/installation.md), the entry points and why this is not on npm
+- [Getting started](docs/getting-started.md), two classes, then what they do
+- [Presets](docs/presets.md), 240 across 40 families, and the manifest shape
+- [Architecture](docs/architecture.md), the three tiers and why they are separate
+- [Lottie](docs/lottie.md), the opt-in adapter and when it earns its size
+- [Release](docs/release.md), cutting a version
 
 ## Accessibility
 
-Honors `prefers-reduced-motion` (and a host `[data-reduce-motion]`) by not starting animations — override
+Honors `prefers-reduced-motion` (and a host `[data-reduce-motion]`) by not starting animations. Override
 with `config({ reduceMotion: 'off' })`.
 
 ## License
-MIT © 2026 Simtabi LLC — https://simtabi.com — hello@simtabi.com
+MIT © 2026 Simtabi LLC · https://simtabi.com · hello@simtabi.com
