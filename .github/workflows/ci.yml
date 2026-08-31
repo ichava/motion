@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No lockfile: this is a library, so it must not pin a resolution its
+      # consumers never use. npm install, not npm ci.
+      - name: Install dependencies
+        run: npm install
+
+      - name: Tests
+        run: npm test
+
+      - name: Preset manifest is reproducible
+        run: |
+          npm run gen
+          git diff --exit-code -- dist/presets.json \
+            || { echo "::error::dist/presets.json is stale — run 'npm run gen' and commit."; exit 1; }
+
+  build-integrity:
+    name: Build does not destroy committed output
+    runs-on: ubuntu-latest
+    # EXPECTED TO FAIL until M2 is fixed in M-P1.
+    #
+    # src/ichava-motion.scss contains zero @keyframes and never invokes its own
+    # @mixin ichm, while the committed dist/ichava-motion.css carries 20
+    # @keyframes and 20 .ichm-* classes. So `npm run build` overwrites the whole
+    # CSS tier with a stub — and the script's trailing `|| true` reports success
+    # while doing it. The tier survives only because nobody runs the build.
+    #
+    # This job is the tripwire. Remove continue-on-error in M-P1, once the build
+    # generates the keyframes it currently deletes.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Record the committed CSS
+        run: |
+          echo "keyframes committed: $(grep -c '@keyframes' dist/ichava-motion.css)"
+          echo "classes committed:   $(grep -c '\.ichm-' dist/ichava-motion.css)"
+
+      - name: Build
+        run: npm run build
+
+      - name: Assert the build changed nothing it should not have
+        run: |
+          echo "keyframes after build: $(grep -c '@keyframes' dist/ichava-motion.css || echo 0)"
+          git diff --exit-code -- dist/ichava-motion.css \
+            || { echo "::error::npm run build rewrote dist/ichava-motion.css (M2). The SCSS is not the source of the shipped CSS."; exit 1; }
+          # The JS artifacts have the same history: dist/ichava-motion.js used to be a
+          # hand copy of src/ with no build step behind it, so a stale artifact was
+          # indistinguishable from a fresh one.
+          git diff --exit-code -- dist/ichava-motion.js dist/ichava-motion.mjs dist/ichava-motion.cjs \
+            || { echo "::error::npm run build rewrote a JS artifact (M1). Commit the build output."; exit 1; }
