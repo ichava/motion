@@ -21,7 +21,7 @@ jobs:
       matrix:
         node: ['20', '22']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -56,7 +56,7 @@ jobs:
     # This job is the tripwire. Remove continue-on-error in M-P1, once the build
     # generates the keyframes it currently deletes.
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
