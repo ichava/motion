@@ -6,7 +6,7 @@ dependencies**, self-contained (JS + CSS). Works in any project (React, Vue, pla
 **~205 presets** (families × variants), `data-*` auto-init, custom keyframes/easings, and an **opt-in
 Lottie** tier.
 
-- **Version:** 1.0.0 · **License:** MIT · © 2026 Simtabi LLC
+- **Version:** 0.1.0 · **License:** MIT · © 2026 Simtabi LLC
 
 ---
 
