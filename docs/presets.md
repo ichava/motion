@@ -8,6 +8,18 @@
 manifest; `npm run gen` rebuilds it and the CI asserts the result is reproducible, so the manifest
 and the CSS cannot drift apart.
 
+The manifest is the authority for that number, so re-measure it rather than quoting this page:
+
+```bash
+jq '{presets: (.presets|length), families: (.presets|map(.family)|unique|length), count}' dist/presets.json
+```
+
+```json
+{ "presets": 240, "families": 40, "count": 242 }
+```
+
+`count` is 242 rather than 240 because of the two sentinels; see [Building a picker](#building-a-picker).
+
 ## The shape of an entry
 
 ```json

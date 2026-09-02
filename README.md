@@ -3,7 +3,7 @@
 A **framework-agnostic**, JSON-driven **SVG / icon animation engine**. Vanilla, **zero runtime
 dependencies**, self-contained (JS + CSS). Works in any project (React, Vue, plain HTML) via a
 `<script>` + `<link>`, or npm. Played through the **Web Animations API** with a **CSS-only** fallback.
-**~205 presets** (families × variants), `data-*` auto-init, custom keyframes/easings, and an **opt-in
+**240 presets across 40 families**, `data-*` auto-init, custom keyframes/easings, and an **opt-in
 Lottie** tier.
 
 - **Version:** 0.1.0 · **License:** MIT · © 2026 Simtabi LLC
@@ -58,7 +58,7 @@ IchavaMotion.animate(el, { keyframes: [{transform:'rotate(0)'},{transform:'rotat
 
 ## Presets
 
-~40 families × 6 variants (`default`, `· Reverse`, `· Subtle`, `· Subtle · Reverse`, `· Bold`,
+40 families × 6 variants (`default`, `· Reverse`, `· Subtle`, `· Subtle · Reverse`, `· Bold`,
 `· Bold · Reverse`) = **240**. Spin/Spin Y/Z, Flip X/Y, Roll, Orbit, Pulse, Heartbeat, Breathe, Zoom
 In/Out, Pop, Rubber Band, Jello, Tada, Bounce, Float, Hop, Slide ×4, Shake X/Y, Vibrate, Wobble, Wiggle,
 Swing, Pendulum, Rock, Fade, Blink, Flash, Glow, Draw, plus the illustration families below.

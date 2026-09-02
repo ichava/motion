@@ -1,7 +1,7 @@
 {
   "name": "@ichava/motion",
   "version": "0.1.0",
-  "description": "Framework-agnostic, JSON-driven SVG/icon animation engine. Vanilla, zero runtime dependencies, WAAPI + CSS, ~205 presets, data-* auto-init, optional Lottie import. Themable via CSS variables.",
+  "description": "Framework-agnostic, JSON-driven SVG/icon animation engine. Vanilla, zero runtime dependencies, WAAPI + CSS, 240 presets across 40 families, data-* auto-init, optional Lottie import. Themable via CSS variables.",
   "license": "MIT",
   "author": "Simtabi LLC <hello@simtabi.com> (https://simtabi.com)",
   "homepage": "https://opensource.simtabi.com/products/ichava/motion",
