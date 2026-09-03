@@ -188,14 +188,16 @@ var CONFIG = {
   reduceMotion: "respect"
   // 'respect' | 'off'
 };
+var BLOCKED_KEYS = ["__proto__", "constructor", "prototype"];
 function assign(t) {
   for (var i = 1; i < arguments.length; i++) {
     var s = arguments[i];
-    if (s) {
-      for (var k in s) if (s.hasOwnProperty(k)) {
-        if (t[k] && typeof t[k] === "object" && typeof s[k] === "object" && !Array.isArray(s[k])) assign(t[k], s[k]);
-        else t[k] = s[k];
-      }
+    if (!s) continue;
+    for (var k in s) {
+      if (!Object.prototype.hasOwnProperty.call(s, k)) continue;
+      if (BLOCKED_KEYS.indexOf(k) !== -1) continue;
+      if (t[k] && typeof t[k] === "object" && typeof s[k] === "object" && !Array.isArray(s[k])) assign(t[k], s[k]);
+      else t[k] = s[k];
     }
   }
   return t;
@@ -205,7 +207,7 @@ function reduceMotion() {
   try {
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.hasAttribute("data-reduce-motion");
   } catch (e) {
-    return false;
+    return true;
   }
 }
 function toEl(target) {
