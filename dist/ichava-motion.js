@@ -185,6 +185,8 @@ var IchavaMotion = function() {
     defaults: { duration: null, easing: "ease-in-out", delay: 0, iterations: null, direction: null, speed: 1, trigger: "load" },
     lottie: "off",
     // 'off' | 'import' | 'full'
+    lottiePlayer: null,
+    // a lottie-web instance you supply; never fetched for you
     reduceMotion: "respect"
     // 'respect' | 'off'
   };
@@ -304,24 +306,25 @@ var IchavaMotion = function() {
     }
     return null;
   }
-  var lottieWebPromise = null;
+  var lottieWarned = false;
+  function resolveLottiePlayer() {
+    if (CONFIG.lottiePlayer) return CONFIG.lottiePlayer;
+    if (typeof window !== "undefined" && window.lottie) return window.lottie;
+    return null;
+  }
   function loadLottieWeb(el, json) {
     if (!el) return null;
-    if (!lottieWebPromise) {
-      lottieWebPromise = new Promise(function(res, rej) {
-        if (window.lottie) return res(window.lottie);
-        var s = document.createElement("script");
-        s.src = "https://cdn.jsdelivr.net/npm/lottie-web@5/build/player/lottie.min.js";
-        s.onload = function() {
-          res(window.lottie);
-        };
-        s.onerror = rej;
-        document.head.appendChild(s);
-      });
+    var lottie = resolveLottiePlayer();
+    if (!lottie) {
+      if (!lottieWarned) {
+        lottieWarned = true;
+        console.warn(
+          '[ichava-motion] lottie:"full" needs a lottie-web player, and this library will not fetch one. Load lottie-web yourself (npm, or a <script> you control) and either expose it as window.lottie or pass it in: IchavaMotion.config({ lottiePlayer: lottie }).'
+        );
+      }
+      return null;
     }
-    lottieWebPromise.then(function(lottie) {
-      if (lottie) lottie.loadAnimation({ container: el, renderer: "svg", loop: true, autoplay: true, animationData: json });
-    });
+    lottie.loadAnimation({ container: el, renderer: "svg", loop: true, autoplay: true, animationData: json });
     return null;
   }
   function readOpts(el) {

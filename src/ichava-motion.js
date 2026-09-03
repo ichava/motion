@@ -103,6 +103,7 @@
   var CONFIG = {
     defaults: { duration: null, easing: 'ease-in-out', delay: 0, iterations: null, direction: null, speed: 1, trigger: 'load' },
     lottie: 'off',        // 'off' | 'import' | 'full'
+    lottiePlayer: null,   // a lottie-web instance you supply; never fetched for you
     reduceMotion: 'respect' // 'respect' | 'off'
   };
   function assign(t) { for (var i = 1; i < arguments.length; i++) { var s = arguments[i]; if (s) for (var k in s) if (s.hasOwnProperty(k)) { if (t[k] && typeof t[k] === 'object' && typeof s[k] === 'object' && !Array.isArray(s[k])) assign(t[k], s[k]); else t[k] = s[k]; } } return t; }
@@ -208,22 +209,55 @@
     return null; // lottie disabled
   }
 
-  var lottieWebPromise = null;
+  /*
+   * The Lottie player is SUPPLIED, never fetched.
+   *
+   * This used to append a <script src="https://cdn.jsdelivr.net/..."> to the head
+   * on first use. Three things were wrong with that, and the first is the one that
+   * matters:
+   *
+   *  1. It cannot run under a strict CSP. Any policy with `script-src 'self'`
+   *     blocks the injected tag, so the feature failed exactly where the library
+   *     claims to be safest. Being CSP-safe by construction is the whole of D1 in
+   *     PLAN.md, and a library that injects remote script cannot claim it.
+   *  2. It silently introduced a third-party origin into the consumer's page, at
+   *     an unpinned major version, with no SRI. A supply-chain change at that
+   *     origin executes in their page with their privileges.
+   *  3. It made the network a dependency of an animation call.
+   *
+   * So resolution is local only: an explicitly configured player, or a global the
+   * consumer loaded themselves. When neither exists we say so once, clearly, and
+   * do nothing -- an animation that does not play is a bug report; a page that
+   * quietly fetches a CDN is an incident.
+   */
+  var lottieWarned = false;
+
+  function resolveLottiePlayer() {
+    if (CONFIG.lottiePlayer) return CONFIG.lottiePlayer;
+    if (typeof window !== 'undefined' && window.lottie) return window.lottie;
+    return null;
+  }
+
   function loadLottieWeb(el, json) {
     if (!el) return null;
-    if (!lottieWebPromise) {
-      lottieWebPromise = new Promise(function (res, rej) {
-        if (window.lottie) return res(window.lottie);
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/lottie-web@5/build/player/lottie.min.js';
-        s.onload = function () { res(window.lottie); };
-        s.onerror = rej;
-        document.head.appendChild(s);
-      });
+
+    var lottie = resolveLottiePlayer();
+
+    if (!lottie) {
+      if (!lottieWarned) {
+        lottieWarned = true;
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[ichava-motion] lottie:"full" needs a lottie-web player, and this library ' +
+          'will not fetch one. Load lottie-web yourself (npm, or a <script> you control) ' +
+          'and either expose it as window.lottie or pass it in: ' +
+          'IchavaMotion.config({ lottiePlayer: lottie }).'
+        );
+      }
+      return null;
     }
-    lottieWebPromise.then(function (lottie) {
-      if (lottie) lottie.loadAnimation({ container: el, renderer: 'svg', loop: true, autoplay: true, animationData: json });
-    });
+
+    lottie.loadAnimation({ container: el, renderer: 'svg', loop: true, autoplay: true, animationData: json });
     return null;
   }
 

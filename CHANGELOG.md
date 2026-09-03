@@ -2,6 +2,27 @@
 
 All notable changes to `@ichava/motion` follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-09-02
+
+### Security
+
+- **The library no longer fetches script.** `lottie: "full"` appended a
+  `<script src="https://cdn.jsdelivr.net/npm/lottie-web@5/...">` to the document head on
+  first use. Under any strict CSP (`script-src 'self'`) that tag is blocked, so the feature
+  failed precisely where the library claims to be safest -- and it introduced an unpinned
+  third-party origin, with no SRI, into the consumer's page.
+
+  The player is now supplied, never resolved over the network: pass one with
+  `IchavaMotion.config({ lottiePlayer: lottie })`, or expose it as `window.lottie`. When
+  neither exists the call warns once and does nothing. `M3`.
+
+### Added
+
+- `config.lottiePlayer`, for supplying a lottie-web instance explicitly.
+- `tests/csp-safety.test.mjs`, which asserts no shipped artifact creates a `<script>`
+  element, references a CDN origin, or calls `eval`/`new Function` -- checked against
+  `dist/` as well as `src/`, since the stale build is what a consumer would actually get.
+
 ## [0.1.0] - 2026-08-31
 
 First open-source release. A framework-agnostic SVG animation engine for the Ichava icon ecosystem:
