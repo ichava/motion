@@ -97,6 +97,21 @@ export interface VariantSpec {
   r: boolean;
 }
 
+/**
+ * What `playSpec()`/`fromJSON()` actually read at runtime: `keyframes` plus
+ * whichever timing hints are present. Every other `MotionSpec` field
+ * (`id`/`label`/`once`/`domOnly`/`draw`/`perChild`/`family`) is ignored --
+ * those only matter to `play()`'s id-based routing.
+ */
+export interface PlaySpec {
+  keyframes: Keyframe[];
+  /** takes precedence over `base` when both are present */
+  duration?: number;
+  base?: number;
+  direction?: Direction;
+  origin?: string;
+}
+
 export interface IchavaMotionApi {
   readonly version: string;
 
@@ -110,10 +125,10 @@ export interface IchavaMotionApi {
   play(el: Element | string, presetId: string, opts?: PlayOptions): Animation | null;
 
   /** Play a raw spec directly -- no id lookup, no perChild/draw routing (single-element only). */
-  playSpec(el: Element | string, spec: MotionSpec | Omit<MotionSpec, 'id' | 'label' | 'once' | 'domOnly' | 'draw' | 'perChild' | 'family'>, opts?: PlayOptions): Animation | null;
+  playSpec(el: Element | string, spec: PlaySpec, opts?: PlayOptions): Animation | null;
 
   /** Play a plain JSON definition ({keyframes, duration|base, easing, direction, iterations}). `{trigger:'loop'}` loops it. */
-  fromJSON(el: Element | string, def: Partial<MotionSpec> & { keyframes: Keyframe[] }, opts?: PlayOptions & { trigger?: 'loop' }): Animation | null;
+  fromJSON(el: Element | string, def: PlaySpec, opts?: PlayOptions & { trigger?: 'loop' }): Animation | null;
 
   /** Declaratively wire every `[data-ichava-motion]` element under `root` (default: document). */
   auto(root?: ParentNode): void;
