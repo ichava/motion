@@ -16,6 +16,16 @@ All notable changes to `@ichava/motion` follow [Keep a Changelog](https://keepac
   `IchavaMotion.config({ lottiePlayer: lottie })`, or expose it as `window.lottie`. When
   neither exists the call warns once and does nothing. `M3`.
 
+- **Config merging can no longer reach `Object.prototype`.** `assign()` guarded with
+  `hasOwnProperty`, which is not a defence: `JSON.parse('{"__proto__":{...}}')` produces an
+  OWN `__proto__` property, so the guard passed and the write went through to the
+  prototype. Config reaches that function from JSON -- a preset manifest, a `data-*`
+  attribute, an API payload -- so the untrusted path was the normal path. `M4`.
+- **An unreadable motion preference is treated as "reduce".** `reduceMotion()` returned
+  `false` on error, meaning "the user has not asked for less motion", so the one genuinely
+  unknown case was resolved by animating anyway. For an accessibility preference the safe
+  default is the accommodating one. `M8`.
+
 ### Added
 
 - `config.lottiePlayer`, for supplying a lottie-web instance explicitly.

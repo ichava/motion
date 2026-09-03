@@ -106,11 +106,52 @@
     lottiePlayer: null,   // a lottie-web instance you supply; never fetched for you
     reduceMotion: 'respect' // 'respect' | 'off'
   };
-  function assign(t) { for (var i = 1; i < arguments.length; i++) { var s = arguments[i]; if (s) for (var k in s) if (s.hasOwnProperty(k)) { if (t[k] && typeof t[k] === 'object' && typeof s[k] === 'object' && !Array.isArray(s[k])) assign(t[k], s[k]); else t[k] = s[k]; } } return t; }
+  /*
+   * Keys that must never be copied, however they arrive.
+   *
+   * `hasOwnProperty` is not a defence against prototype pollution and reading it
+   * as one is the usual mistake: `JSON.parse('{"__proto__":{"x":1}}')` produces an
+   * OWN `__proto__` property, so the guard passes and `t[k] = s[k]` then writes
+   * through to Object.prototype. Config reaches this function from JSON -- a
+   * preset manifest, a data-* attribute, an API payload -- so the untrusted path
+   * is the normal path. (`M4`.)
+   *
+   * A plain array, deliberately. The first fix here used an object literal --
+   * `{ __proto__: 1, ... }` -- which does not create a `__proto__` KEY at all: it
+   * sets that object's prototype, leaving the block list empty and the guard
+   * inert. The test caught it. Same trap, one level up.
+   */
+  var BLOCKED_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+  function assign(t) {
+    for (var i = 1; i < arguments.length; i++) {
+      var s = arguments[i];
+      if (!s) continue;
+      for (var k in s) {
+        if (!Object.prototype.hasOwnProperty.call(s, k)) continue;
+        if (BLOCKED_KEYS.indexOf(k) !== -1) continue;
+        if (t[k] && typeof t[k] === 'object' && typeof s[k] === 'object' && !Array.isArray(s[k])) assign(t[k], s[k]);
+        else t[k] = s[k];
+      }
+    }
+    return t;
+  }
 
   function reduceMotion() {
     if (CONFIG.reduceMotion === 'off') return false;
-    try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.hasAttribute('data-reduce-motion'); } catch (e) { return false; }
+    /*
+     * Fail CLOSED: when the preference cannot be read, assume it is set.
+     *
+     * This returned false on error, which means "the user has not asked for less
+     * motion" -- so the one case where we genuinely do not know was resolved by
+     * animating anyway. For an accessibility preference the safe default is the
+     * accommodating one; a missing animation is a cosmetic complaint, unwanted
+     * motion can be a vestibular one. (`M8`.)
+     */
+    try {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        || document.documentElement.hasAttribute('data-reduce-motion');
+    } catch (e) { return true; }
   }
 
   /* ─── player ─────────────────────────────────────────────────────────────── */
