@@ -2,7 +2,13 @@
 
 All notable changes to `@ichava/motion` follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) and [Semantic Versioning](https://semver.org/).
 
-## [0.1.1] - 2026-09-02
+## [0.1.1] - 2026-09-16
+
+### Added
+
+- `release.yml`, and third-party GitHub Actions pinned to the commit SHA of their latest
+  release. `typescript` moved to `7.0.2`; nothing here compiles TypeScript today — there is no
+  `tsconfig.json` and no `tsc` in any script — so that bump is inert until the rewrite lands.
 
 ### Security
 
