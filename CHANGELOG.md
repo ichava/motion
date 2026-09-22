@@ -19,6 +19,13 @@ All notable changes to `@ichava/motion` follow [Keep a Changelog](https://keepac
   key, and an `if:` referencing a property that does not exist are all caught, while
   `yaml.safe_load` still parses the first of them without complaint.
 
+### Changed
+
+- **Dead links to the deleted `ichava/documentation` repository removed.** That repository no
+  longer exists, so every cross-reference to it resolved to a 404. The reporting channels in
+  `SECURITY.md` were already stated inline and are unchanged; the Code of Conduct now cites the
+  Contributor Covenant directly. Historical mentions in this changelog are left as written.
+
 ### Fixed
 
 - **A failed SBOM download no longer takes the whole release down.** `release.yml` generates the
